@@ -19,3 +19,8 @@ FROM (
     WHERE posts.author = 'sketchdailybot'
     GROUP BY posts.id
 )
+
+-- Total number of users 
+SELECT COUNT(DISTINCT author)
+FROM comments
+WHERE author IS NOT NULL
