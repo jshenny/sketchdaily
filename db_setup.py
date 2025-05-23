@@ -1,7 +1,7 @@
 import sqlite3
 
 # Connect to SQLite database (creates it if it doesn't exist)
-conn = sqlite3.connect("sketchdaily.db")
+conn = sqlite3.connect("sketchdaily_full.db")
 c = conn.cursor()
 
 # Create users table
