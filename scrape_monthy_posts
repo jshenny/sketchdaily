@@ -1,0 +1,52 @@
+import sqlite3
+import os
+from datetime import datetime
+
+# Connect to the database
+conn = sqlite3.connect("sketchdaily_full.db")
+c = conn.cursor()
+
+# Output Markdown file
+output_file = "all_free_chat_comments.md"
+
+# Get all Free Chat posts
+c.execute("""
+    SELECT id, title, created_utc
+    FROM posts
+    WHERE title LIKE '%Free Chat%'
+    ORDER BY created_utc ASC
+""")
+posts = c.fetchall()
+
+with open(output_file, "w", encoding="utf-8") as f:
+    for post_id, title, post_utc in posts:
+        post_time = datetime.utcfromtimestamp(post_utc).isoformat()
+        f.write(f"# 🧵 {title}\n")
+        f.write(f"**📅 Thread Date (UTC):** {post_time}\n\n")
+
+        # Get all comments for the post
+        c.execute("""
+            SELECT c.id, c.parent_id, c.author, c.body, c.depth, c.created_utc, c.score, u.user_flair
+            FROM comments c
+            LEFT JOIN user_subreddit_stats u
+                ON c.author = u.username AND u.subreddit = 'SketchDaily'
+            WHERE c.post_id = ?
+            ORDER BY c.created_utc ASC
+        """, (post_id,))
+        comments = c.fetchall()
+
+        for comment_id, parent_id, author, body, depth, comment_utc, score, flair in comments:
+            timestamp = datetime.utcfromtimestamp(comment_utc).isoformat()
+            indent = "    " * (depth - 1)  # 4 spaces per nesting level
+            flair_text = f" [{flair}]" if flair else ""
+
+            header = f"{author}{flair_text} ({timestamp}, 🔼 {score})"
+            f.write(f"{indent}**{header}**\n")
+            for line in body.strip().splitlines():
+                f.write(f"{indent}> {line}\n")
+            f.write("\n")
+
+        f.write("\n---\n\n")
+
+print(f"✅ Exported all Free Chat comments to Markdown: {output_file}")
+conn.close()

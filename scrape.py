@@ -15,7 +15,7 @@ reddit = praw.Reddit(
 
 
 SUBREDDIT_NAME = "SketchDaily"
-DB_NAME = "sketchdaily.db"
+DB_NAME = "sketchdaily_full.db"
 
 # --- Connect to SQLite ---
 conn = sqlite3.connect(DB_NAME)

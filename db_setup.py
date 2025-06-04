@@ -1,7 +1,7 @@
 import sqlite3
 
 # Connect to SQLite database (creates it if it doesn't exist)
-conn = sqlite3.connect("sketchdaily_full.db")
+conn = sqlite3.connect("sketchdaily.db")
 c = conn.cursor()
 
 # Create users table
@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS users (
 )
 """)
 
-# Create posts table
+# Create posts table (with added created_date)
 c.execute("""
 CREATE TABLE IF NOT EXISTS posts (
     id TEXT PRIMARY KEY,
@@ -23,11 +23,12 @@ CREATE TABLE IF NOT EXISTS posts (
     score INTEGER,
     flair TEXT,
     created_utc INTEGER,
+    created_date TEXT,
     FOREIGN KEY (author) REFERENCES users(username)
 )
 """)
 
-# Create comments table
+# Create comments table (with added created_date)
 c.execute("""
 CREATE TABLE IF NOT EXISTS comments (
     id TEXT PRIMARY KEY,
@@ -38,6 +39,7 @@ CREATE TABLE IF NOT EXISTS comments (
     depth INTEGER,
     score INTEGER,
     created_utc INTEGER,
+    created_date TEXT,
     FOREIGN KEY (post_id) REFERENCES posts(id),
     FOREIGN KEY (author) REFERENCES users(username)
 )
@@ -62,4 +64,4 @@ CREATE TABLE IF NOT EXISTS user_subreddit_stats (
 conn.commit()
 conn.close()
 
-print("✅ SQLite schema created successfully as sketchdaily.db")
+print("✅ SQLite schema with readable dates created successfully as sketchdaily_full.db")
